@@ -1,7 +1,6 @@
 import algorithms
 import argparse
 import csv
-import math
 import numpy as np
 import matplotlib.pyplot as plt
 import warnings
@@ -9,7 +8,6 @@ import warnings
 from config import fileIn, fileOut, attributeNumbers, categorizingAttributeNumber, numRows, endText
 from itertools import cycle
 from scipy import interp
-from sklearn.utils import shuffle
 from sklearn import datasets
 from sklearn import metrics
 from sklearn import svm
@@ -20,48 +18,6 @@ from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
-
-def orderOfMagnitude(record):
-    floatedValue = float(record[categorizingAttributeNumber])
-    try:
-        return float(math.floor(math.log10(floatedValue)));  #mean
-    except ValueError:
-        return - 1000000
-
-# Open the dataset, format and shuffle it
-with open(fileIn, "r", encoding="utf8") as file:
-    reader = csv.reader(file)
-    csv_list = list(reader)
-    csv_list = csv_list[1:] #Ignore first row of data
-    csv_list = shuffle(csv_list, n_samples=len(csv_list)) # Randomize
-    csv_list = csv_list[:numRows] 
-
-# Set up data containers
-partition_input = []
-partition_output = []
-input_list = []
-output_list = []
-test_input = []
-test_output = []
-
-# Move dataset into input and outputs
-for record in csv_list:
-    input_vector = []
-    try:
-    	for attribute in attributeNumbers:
-    		buoyantAttribute = float(record[attribute])
-    		input_vector.append(buoyantAttribute)
-    except ValueError:
-        print("ValueError: ", ValueError)
-    output_vector = orderOfMagnitude(record)
-    partition_input.append(input_vector)
-    partition_output.append(output_vector)
-
-# Make training and testing data
-input_list = partition_input[:int(0.9 * len(partition_input))]
-output_list = partition_output[:int(0.9 * len(partition_input))]
-test_input = partition_input[int(0.9 * len(partition_input)):]
-test_output = partition_output[int(0.9 * len(partition_input)):]
 
 # Parse CLI
 parser = argparse.ArgumentParser()
@@ -87,16 +43,16 @@ warnings.simplefilter("ignore")
 
 # Run the selected algorithms
 if not arguments.nonboostDepth == None:
-	algorithms.nonboostMaxDepth(arguments.nonboostDepth, input_list, output_list, test_input, test_output)
+	algorithms.nonboostMaxDepth(arguments.nonboostDepth)
 if not arguments.adaboostEstimators == None:
-	algorithms.adaboostNEst(arguments.adaboostEstimators, input_list, output_list, test_input, test_output)
+	algorithms.adaboostNEst(arguments.adaboostEstimators)
 if not arguments.adaboostDepth == None:
-	algorithms.adaboostMaxDepth(arguments.adaboostDepth, input_list, output_list, test_input, test_output)
+	algorithms.adaboostMaxDepth(arguments.adaboostDepth)
 if not arguments.knnK == None:
-	algorithms.knn(arguments.knnK, input_list, output_list, test_input, test_output)
+	algorithms.knn(arguments.knnK)
 if not arguments.varyNeurons == None:
-	algorithms.ANNVaryNeurons(arguments.varyNeurons, input_list, output_list, test_input, test_output)
+	algorithms.ANNVaryNeurons(arguments.varyNeurons)
 if not arguments.varyLayers == None:
-	algorithms.ANNVaryLayers(arguments.varyLayers, input_list, output_list, test_input, test_output)
+	algorithms.ANNVaryLayers(arguments.varyLayers)
 
 print(endText)

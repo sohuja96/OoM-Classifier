@@ -1,7 +1,9 @@
 import csv
+import math
 import numpy
 import matplotlib.pyplot as plt
 
+from config import fileIn, fileOut, attributeNumbers, categorizingAttributeNumber, numRows, endText
 from config import fileOut, setCV
 from scipy import interp
 from sklearn import svm
@@ -12,12 +14,60 @@ from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
+from sklearn.utils import shuffle
 
+# Output consistent file names
 def fileName(algorithm):
 	return "Output/" + fileOut + algorithm + ".csv"
 
+# Calculate order of magnitude
+def orderOfMagnitude(record):
+    floatedValue = float(record[categorizingAttributeNumber])
+    try:
+        return float(math.floor(math.log10(floatedValue)));  #mean
+    except ValueError:
+        return - 1000000
+
+# Open the dataset, format and shuffle it
+with open(fileIn, "r", encoding="utf8") as file:
+    reader = csv.reader(file)
+    csv_list = list(reader)
+    csv_list = csv_list[1:] #Ignore first row of data
+    csv_list = shuffle(csv_list, n_samples=len(csv_list)) # Randomize
+    csv_list = csv_list[:numRows] 
+
+# Set up data containers
+partition_input = []
+partition_output = []
+test_input = []
+test_output = []
+
+# Move dataset into input and outputs
+for record in csv_list:
+    input_vector = []
+    try:
+    	for attribute in attributeNumbers:
+    		buoyantAttribute = float(record[attribute])
+    		input_vector.append(buoyantAttribute)
+    except ValueError:
+        print("ValueError: ", ValueError)
+    output_vector = orderOfMagnitude(record)
+    partition_input.append(input_vector)
+    partition_output.append(output_vector)
+
+# Make training and testing data
+input_list = partition_input[:int(0.9 * len(partition_input))]
+output_list = partition_output[:int(0.9 * len(partition_input))]
+test_input = partition_input[int(0.9 * len(partition_input)):]
+test_output = partition_output[int(0.9 * len(partition_input)):]
+
 # Analyze model complexity curve for NonBoost tree classifier, max_depth
-def nonboostMaxDepth(nonboostDepth, input_list, output_list, test_input, test_output):
+def nonboostMaxDepth(nonboostDepth):
+	global input_list
+	global output_list
+	global test_input
+	global test_output
+
 	file = open(fileName("_nonboost_max_depth_results"), "w")
 	print("Beginning model complexity analysis for NonBoost...")
 	file.write("max_depth" + ", " + "cross_val_score" + ", " + "training_score" + ", " + "testing_score\n")
@@ -32,7 +82,12 @@ def nonboostMaxDepth(nonboostDepth, input_list, output_list, test_input, test_ou
 	print("\tNonboost Progress: 100%")
 
 # Analyze model complexity curve for AdaBoost tree classifier, find n_estimators
-def adaboostNEst(adaboostEstimators, input_list, output_list, test_input, test_output):
+def adaboostNEst(adaboostEstimators):
+	global input_list
+	global output_list
+	global test_input
+	global test_output
+
 	file = open(fileName("_adaboost_n_estimators_results"), "w")
 	print("Beginning model complexity analysis for AdaBoost... n_estimators")
 	file.write("n_estimators" + ", " + "cross_val_score" + ", " + "training_score" + ", " + "testing_score\n")
@@ -47,7 +102,12 @@ def adaboostNEst(adaboostEstimators, input_list, output_list, test_input, test_o
 	print("\tAdaboost n-Estimator Progress: 100%")
 
 # Analyze model complexity curve for AdaBoost tree classifier, find max_depth
-def adaboostMaxDepth(adaboostDepth, input_list, output_list, test_input, test_output):
+def adaboostMaxDepth(adaboostDepth):
+	global input_list
+	global output_list
+	global test_input
+	global test_output
+
 	file = open(fileName("_adaboost_max_depth_results"), "w")
 	print("Beginning model complexity analysis for AdaBoost... max_depth")
 	file.write("max_depth" + ", " + "cross_val_score" + ", " + "training_score" + ", " + "testing_score\n")
@@ -64,7 +124,12 @@ def adaboostMaxDepth(adaboostDepth, input_list, output_list, test_input, test_ou
 	print("\tAdaboost Max-Depth Progress: 100%")
 
 # Analyze model complexity curve for KNN classifier
-def knn(knnK, input_list, output_list, test_input, test_output):
+def knn(knnK):
+	global input_list
+	global output_list
+	global test_input
+	global test_output
+
 	file = open(fileName("_knn_results"), "w")
 	print("Beginning model complexity analysis for KNN...")
 	file.write("k" + ", " + "cross_val_score" + ", " + "training_score" + ", " + "testing_score\n")
@@ -81,7 +146,12 @@ def knn(knnK, input_list, output_list, test_input, test_output):
 	print("\tKNN Progress: 100%")
 
 # Neural network ideal number of neurons in a layer
-def ANNVaryNeurons(varyNeurons, input_list, output_list, test_input, test_output):
+def ANNVaryNeurons(varyNeurons):
+	global input_list
+	global output_list
+	global test_input
+	global test_output
+
 	scaler = StandardScaler()
 	scaler.fit(input_list)
 	input_list = scaler.transform(input_list)
@@ -103,7 +173,12 @@ def ANNVaryNeurons(varyNeurons, input_list, output_list, test_input, test_output
 	print("\tANN Vary Neuron Progress: 100%")
 
 # Neural network tuple length analysis, or number of layers
-def ANNVaryLayers(varyLayers, input_list, output_list, test_input, test_output):
+def ANNVaryLayers(varyLayers):
+	global input_list
+	global output_list
+	global test_input
+	global test_output
+
 	scaler = StandardScaler()
 	scaler.fit(input_list)
 	input_list = scaler.transform(input_list)
@@ -118,7 +193,7 @@ def ANNVaryLayers(varyLayers, input_list, output_list, test_input, test_output):
 		    layers.append(18)
 		classifier = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(layers), random_state=1)
 		result = ""
-		result += (str(neurons + 1) + "," + str(cross_val_score(
+		result += (str(numLayer + 1) + "," + str(cross_val_score(
 		classifier, input_list, output_list, cv = setCV).mean()) + ", ")
 		classifier.fit(input_list, output_list)
 		result += str(classifier.score(input_list, output_list)) + ", "
