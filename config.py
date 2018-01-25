@@ -5,16 +5,22 @@ fileOut= "" #output file name, automatically places it in Output and appends the
 attributeNumbers= [] #column numbers indexing at 1 as [x, y, z, ...], the last one being the attribute you're testing for
 categorizingAttributeNumber= 0 #replace with the attribute number (indexing at 1) that you're using as categories
 numRows= 10
+setCV = 10
+
+nonboostDepth= 50
+adaboostDepth= 50
+adaboostEstimators= 50
+knnK= 50
+varyNeurons= 50
+varyLayers= 50
 
 # FOR MY LOVELY GTA's! :)
-'''
 # DATASET 1
 fileIn= "TornadoData/2016_torn.csv"
 fileOut= "tornado_"
 attributeNumbers= [3, 11, 20, 21]
 categorizingAttributeNumber= 14
-numRows= 950
-'''
+numRows= 100
 '''
 # DATASET 2
 fileIn= "AirQData/epa_air_quality_annual_summary.csv"
