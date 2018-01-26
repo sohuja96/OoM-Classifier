@@ -1,23 +1,9 @@
-import algorithms
 import argparse
-import csv
-import numpy as np
-import matplotlib.pyplot as plt
-import warnings
 
-from config import fileIn, fileOut, attributeNumbers, categorizingAttributeNumber, numRows, endText
-from itertools import cycle
-from scipy import interp
-from sklearn import datasets
-from sklearn import metrics
-from sklearn import svm
-from sklearn import tree
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.metrics import roc_curve, auc, confusion_matrix
-from sklearn.model_selection import cross_val_score, StratifiedKFold
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import StandardScaler
+svmFlagged = False
+def svmToggle():
+	global svmFlagged
+	svmFlagged = True
 
 # Parse CLI
 parser = argparse.ArgumentParser()
@@ -27,7 +13,16 @@ parser.add_argument("-abd", "--adaboostDepth", help="Boosted Decision Tree:\t Ma
 parser.add_argument("-knn", "--knnK", help="K-Nearest Neighbors:\tVary K", type=int)
 parser.add_argument("-vn", "--varyNeurons", help="Artificial Neural Network:\tVary Neurons", type=int)
 parser.add_argument("-vl", "--varyLayers", help="Artificial Neural Network:\tVary Layers", type=int)
+parser.add_argument("-svm", "--supportVectorMachines", help="Support Vector Machines:\tVary Kernels", action="store_true")
 arguments = parser.parse_args()
+
+print("\nStart of Machine Learning")
+
+import algorithms
+import warnings
+from config import fileIn, fileOut, attributeNumbers, categorizingAttributeNumber, numRows
+
+warnings.simplefilter("ignore")
 
 # Output the set-up parameters
 parameters = [fileIn, fileOut, attributeNumbers, categorizingAttributeNumber, numRows,
@@ -37,9 +32,8 @@ parameterNames = ["fileIn", "fileOut", "attributeNumbers", "categorizingAttribut
 "nonboostDepth", "adaboostEstimators", "adaboostDepth", "knnK", "varyNeurons", "varyLayers"]
 parameterInfo = ""
 for param in range(0, len(parameters)):
-	parameterInfo += "\t" + parameterNames[param] + "=" + str(parameters[param]) + "\n"
+	parameterInfo += "    " + parameterNames[param] + "=" + str(parameters[param]) + "\n"
 print("Running analysis with configuration:\n" + parameterInfo) 
-warnings.simplefilter("ignore")
 
 # Run the selected algorithms
 if not arguments.nonboostDepth == None:
@@ -54,5 +48,7 @@ if not arguments.varyNeurons == None:
 	algorithms.ANNVaryNeurons(arguments.varyNeurons)
 if not arguments.varyLayers == None:
 	algorithms.ANNVaryLayers(arguments.varyLayers)
+if arguments.supportVectorMachines:
+	algorithms.svmCompare()
 
-print(endText)
+print("\nMachine Learning Complete!\n")

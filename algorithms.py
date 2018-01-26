@@ -3,8 +3,7 @@ import math
 import numpy
 import matplotlib.pyplot as plt
 
-from config import fileIn, fileOut, attributeNumbers, categorizingAttributeNumber, numRows, endText
-from config import fileOut, setCV
+from config import fileIn, fileOut, attributeNumbers, categorizingAttributeNumber, numRows, setCV
 from scipy import interp
 from sklearn import svm
 from sklearn import tree
@@ -22,7 +21,7 @@ def fileName(algorithm):
 
 # Calculate order of magnitude
 def orderOfMagnitude(record):
-    floatedValue = float(record[categorizingAttributeNumber])
+    floatedValue = float(record[categorizingAttributeNumber-1])
     try:
         return float(math.floor(math.log10(floatedValue)));  #mean
     except ValueError:
@@ -43,17 +42,23 @@ test_input = []
 test_output = []
 
 # Move dataset into input and outputs
+errors= 0
+inputs= 0
+
 for record in csv_list:
-    input_vector = []
-    try:
-    	for attribute in attributeNumbers:
-    		buoyantAttribute = float(record[attribute])
-    		input_vector.append(buoyantAttribute)
-    except ValueError:
-        print("ValueError: ", ValueError)
-    output_vector = orderOfMagnitude(record)
-    partition_input.append(input_vector)
-    partition_output.append(output_vector)
+	inputs += 1
+	input_vector = []
+	try:
+		for attribute in attributeNumbers:
+			attribute -= 1
+			buoyantAttribute = float(record[attribute])
+			input_vector.append(buoyantAttribute)
+	except ValueError:
+		errors += 1
+		print("ValueError for " + str(record[attribute]) + "\n\t" + str(errors/inputs *100) + "% errors in your dataset")
+	output_vector = orderOfMagnitude(record)
+	partition_input.append(input_vector)
+	partition_output.append(output_vector)
 
 # Make training and testing data
 input_list = partition_input[:int(0.9 * len(partition_input))]
@@ -69,17 +74,17 @@ def nonboostMaxDepth(nonboostDepth):
 	global test_output
 
 	file = open(fileName("_nonboost_max_depth_results"), "w")
-	print("Beginning model complexity analysis for NonBoost...")
+	print("\tBeginning model complexity analysis for NonBoost...")
 	file.write("max_depth" + ", " + "cross_val_score" + ", " + "training_score" + ", " + "testing_score\n")
 	for max_depth in range(nonboostDepth):
-		print("\tNonboost Progress: "+str(int(max_depth/nonboostDepth*100))+"%", end='\r')
+		print("\t  Nonboost Progress: "+str(int(max_depth/nonboostDepth*100))+"%", end='\r')
 		classifier = tree.DecisionTreeClassifier(max_depth = max_depth + 1)
 		file.write(str(max_depth + 1) + ","
 		+ str(cross_val_score(classifier, input_list, output_list, cv = setCV).mean()) + ", ")
 		classifier.fit(input_list, output_list)
 		file.write(str(classifier.score(input_list, output_list)) + ", ")
 		file.write(str(classifier.score(test_input, test_output)) + "\n")
-	print("\tNonboost Progress: 100%")
+	print("\t  Nonboost Progress: 100%")
 
 # Analyze model complexity curve for AdaBoost tree classifier, find n_estimators
 def adaboostNEst(adaboostEstimators):
@@ -89,17 +94,17 @@ def adaboostNEst(adaboostEstimators):
 	global test_output
 
 	file = open(fileName("_adaboost_n_estimators_results"), "w")
-	print("Beginning model complexity analysis for AdaBoost... n_estimators")
+	print("\tBeginning model complexity analysis for AdaBoost... n_estimators")
 	file.write("n_estimators" + ", " + "cross_val_score" + ", " + "training_score" + ", " + "testing_score\n")
 	for n_estimators in range(adaboostEstimators):
-		print("\tAdaboost n-Estimator Progress: "+ str(int(n_estimators/adaboostEstimators*100))+"%", end="\r")
+		print("\t  Adaboost n-Estimator Progress: "+ str(int(n_estimators/adaboostEstimators*100))+"%", end="\r")
 		classifier = AdaBoostClassifier(base_estimator=tree.DecisionTreeClassifier(), n_estimators=(n_estimators + 1) * 10)
 		file.write(str((n_estimators + 1) * 10) + "," + str(cross_val_score(
 		classifier, input_list, output_list, cv = setCV).mean()) + ", ")
 		classifier.fit(input_list, output_list)
 		file.write(str(classifier.score(input_list, output_list)) + ", ")
 		file.write(str(classifier.score(test_input, test_output)) + "\n")
-	print("\tAdaboost n-Estimator Progress: 100%")
+	print("\t  Adaboost n-Estimator Progress: 100%")
 
 # Analyze model complexity curve for AdaBoost tree classifier, find max_depth
 def adaboostMaxDepth(adaboostDepth):
@@ -109,10 +114,10 @@ def adaboostMaxDepth(adaboostDepth):
 	global test_output
 
 	file = open(fileName("_adaboost_max_depth_results"), "w")
-	print("Beginning model complexity analysis for AdaBoost... max_depth")
+	print("\tBeginning model complexity analysis for AdaBoost... max_depth")
 	file.write("max_depth" + ", " + "cross_val_score" + ", " + "training_score" + ", " + "testing_score\n")
 	for max_depth in range(adaboostDepth):
-		print("\tAdaboot Max-Depth Progress: "+str(int(max_depth/adaboostDepth*100))+"%", end="\r")
+		print("\t  Adaboot Max-Depth Progress: "+str(int(max_depth/adaboostDepth*100))+"%", end="\r")
 		classifier = AdaBoostClassifier(base_estimator=tree.DecisionTreeClassifier(max_depth=max_depth + 1), n_estimators=50)
 		result = ""
 		result += (str(max_depth + 1) + "," + str(cross_val_score(
@@ -121,7 +126,7 @@ def adaboostMaxDepth(adaboostDepth):
 		result += str(classifier.score(input_list, output_list)) + ", "
 		result += str(classifier.score(test_input, test_output)) + "\n"
 		file.write(result)
-	print("\tAdaboost Max-Depth Progress: 100%")
+	print("\t  Adaboost Max-Depth Progress: 100%")
 
 # Analyze model complexity curve for KNN classifier
 def knn(knnK):
@@ -131,10 +136,10 @@ def knn(knnK):
 	global test_output
 
 	file = open(fileName("_knn_results"), "w")
-	print("Beginning model complexity analysis for KNN...")
+	print("\tBeginning model complexity analysis for KNN...")
 	file.write("k" + ", " + "cross_val_score" + ", " + "training_score" + ", " + "testing_score\n")
 	for k in range(knnK):
-		print("\tKNN Progress: " +str(int(k/knnK*100)) + "%", end="\r")
+		print("\t  KNN Progress: " +str(int(k/knnK*100)) + "%", end="\r")
 		classifier = KNeighborsClassifier(n_neighbors = k + 1)
 		result = ""
 		result += (str(k + 1) + "," + str(cross_val_score(
@@ -143,7 +148,7 @@ def knn(knnK):
 		result += str(classifier.score(input_list, output_list)) + ", "
 		result += str(classifier.score(test_input, test_output)) + "\n"
 		file.write(result)
-	print("\tKNN Progress: 100%")
+	print("\t  KNN Progress: 100%")
 
 # Neural network ideal number of neurons in a layer
 def ANNVaryNeurons(varyNeurons):
@@ -157,10 +162,10 @@ def ANNVaryNeurons(varyNeurons):
 	input_list = scaler.transform(input_list)
 	test_input = scaler.transform(test_input)
 	file = open(fileName("_neural_network_layer_results"), "w")
-	print("Beginning model complexity analysis for NeuralNetwork... neurons")
+	print("\tBeginning model complexity analysis for NeuralNetwork... neurons")
 	file.write("layers" + ", " + "cross_val_score" + ", " + "training_score" + ", " + "testing_score\n")
 	for neurons in range(varyNeurons):
-		print("\tANN Vary Neuron Progress: " +str(int(neurons/varyNeurons*100)) + "%", end="\r")
+		print("\t  ANN Vary Neuron Progress: " +str(int(neurons/varyNeurons*100)) + "%", end="\r")
 		layers = [neurons + 1]
 		classifier = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(layers), random_state=1)
 		result = ""
@@ -170,7 +175,7 @@ def ANNVaryNeurons(varyNeurons):
 		result += str(classifier.score(input_list, output_list)) + ", "
 		result += str(classifier.score(test_input, test_output)) + "\n"
 		file.write(result)
-	print("\tANN Vary Neuron Progress: 100%")
+	print("\t  ANN Vary Neuron Progress: 100%")
 
 # Neural network tuple length analysis, or number of layers
 def ANNVaryLayers(varyLayers):
@@ -184,10 +189,10 @@ def ANNVaryLayers(varyLayers):
 	input_list = scaler.transform(input_list)
 	test_input = scaler.transform(test_input)
 	file = open(fileName("_neural_network_layer_length_results"), "w")
-	print("Beginning model complexity analysis for NeuralNetwork... number of layers")
+	print("\tBeginning model complexity analysis for NeuralNetwork... number of layers")
 	file.write("layers" + ", " + "cross_val_score" + ", " + "training_score" + ", " + "testing_score\n")
 	for numLayer in range(varyLayers):
-		print("\tANN Vary Layers Progress: " +str(int(numLayer/varyLayers*100)) + "%", end="\r")
+		print("\t  ANN Vary Layers Progress: " +str(int(numLayer/varyLayers*100)) + "%", end="\r")
 		layers = []
 		for neuron in range(numLayer):
 		    layers.append(18)
@@ -199,35 +204,64 @@ def ANNVaryLayers(varyLayers):
 		result += str(classifier.score(input_list, output_list)) + ", "
 		result += str(classifier.score(test_input, test_output)) + "\n"
 		file.write(result)
-	print("\tANN Vary Layers Progress: 100%")
-'''
+	print("\t  ANN Vary Layers Progress: 100%")
+
 # SVC kernel analysis; which kernel is ideal
-SVC = svm.SVC(); # rbf
-SigmoidSVC = svm.SVC(kernel="sigmoid")
-LinearSVC = svm.LinearSVC();
+def svmCompare():
+	print("\tBeginning model complexity analysis for SVM...")
+	SVC = svm.SVC() # rbf
+	SigmoidSVC = svm.SVC(kernel="sigmoid")
+	LinearSVC = svm.LinearSVC();
 
-result = ""
-result += ("RBF_SVC" + "," + str(cross_val_score(
-SVC, input_list, output_list, cv = setCV).mean()) + ", ")
-SVC.fit(input_list, output_list)
-result += str(SVC.score(input_list, output_list)) + ", "
-result += str(SVC.score(test_input, test_output)) + "\n"
-print(result)
-result = ""
-result += ("Sigmoid_SVC" + "," + str(cross_val_score(
-SigmoidSVC, input_list, output_list, cv = setCV).mean()) + ", ")
-SigmoidSVC.fit(input_list, output_list)
-result += str(SigmoidSVC.score(input_list, output_list)) + ", "
-result += str(SigmoidSVC.score(test_input, test_output)) + "\n"
-print(result)
-result = ""
-result += ("Linear_SVC" + "," + str(cross_val_score(
-LinearSVC, input_list, output_list, cv = setCV).mean()) + ", ")
-LinearSVC.fit(input_list, output_list)
-result += str(LinearSVC.score(input_list, output_list)) + ", "
-result += str(LinearSVC.score(test_input, test_output)) + "\n"
-print(result)
+	crossValScore = cross_val_score(SVC, input_list, output_list, cv = setCV).mean()
+	SVC.fit(input_list, output_list)
+	trainingScore = SVC.score(input_list, output_list)
+	testingScore = SVC.score(test_input, test_output)
+	result = ""
+	result += ("RBF_SVC"
+	+ ","
+	+ str(crossValScore)
+	+ ", ")
+	result += str(trainingScore) + ", "
+	result += str(testingScore) + "\n"
+	print("\t  Radial Basis Function")
+	print("\t    Cross-Validation Score: " + str(crossValScore*100))
+	print("\t    Training Score: " + str(trainingScore*100))
+	print("\t    Testing Score: " + str(testingScore*100))
 
+	crossValScore = cross_val_score(SigmoidSVC, input_list, output_list, cv = setCV).mean()
+	SigmoidSVC.fit(input_list, output_list)
+	trainingScore = SigmoidSVC.score(input_list, output_list)
+	testingScore = SigmoidSVC.score(test_input, test_output)
+	result = ""
+	result += ("Sigmoid_SVC"
+	+ ","
+	+ str(crossValScore)
+	+ ", ")
+	result += str(trainingScore) + ", "
+	result += str(testingScore) + "\n"
+	print("\t  Sigmoid")
+	print("\t    Cross-Validation Score: " + str(crossValScore*100))
+	print("\t    Training Score: " + str(trainingScore*100))
+	print("\t    Testing Score: " + str(testingScore*100))
+
+	crossValScore = cross_val_score(LinearSVC, input_list, output_list, cv = setCV).mean()
+	LinearSVC.fit(input_list, output_list)
+	trainingScore = SVC.score(input_list, output_list)
+	testingScore = SVC.score(test_input, test_output)
+	result = ""
+	result += ("Linear_SVC"
+	+ ","
+	+ str(crossValScore)
+	+ ", ")
+	result += str(trainingScore) + ", "
+	result += str(testingScore) + "\n"
+	print("\t  Linear")
+	print("\t    Cross-Validation Score: " + str(crossValScore*100))
+	print("\t    Training Score: " + str(trainingScore*100))
+	print("\t    Testing Score: " + str(testingScore*100))
+
+'''
 # Gather data for learning curves
 scaler = StandardScaler()
 
