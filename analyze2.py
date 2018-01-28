@@ -32,18 +32,18 @@ print("Running analysis with configuration:\n" + parameterInfo)
 
 # Run the selected algorithms
 if not arguments.nonboostDepth == None:
-	algorithms.nonboostMaxDepth(arguments.nonboostDepth)
+	algorithms2.nonboostMaxDepth(arguments.nonboostDepth)
 if not arguments.adaboostEstimators == None:
-	algorithms.adaboostNEst(arguments.adaboostEstimators)
+	algorithms2.adaboostNEst(arguments.adaboostEstimators)
 if not arguments.adaboostDepth == None:
-	algorithms.adaboostMaxDepth(arguments.adaboostDepth)
+	algorithms2.adaboostMaxDepth(arguments.adaboostDepth)
 if not arguments.knnK == None:
-	algorithms.knn(arguments.knnK)
+	algorithms2.knn(arguments.knnK)
 if not arguments.varyNeurons == None:
-	algorithms.ANNVaryNeurons(arguments.varyNeurons)
+	algorithms2.ANNVaryNeurons(arguments.varyNeurons)
 if not arguments.varyLayers == None:
-	algorithms.ANNVaryLayers(arguments.varyLayers)
+	algorithms2.ANNVaryLayers(arguments.varyLayers)
 if arguments.supportVectorMachines:
-	algorithms.svmCompare()
+	algorithms2.svmCompare()
 
 print("\nMachine Learning Complete!\n")

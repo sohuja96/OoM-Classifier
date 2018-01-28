@@ -91,7 +91,7 @@ def nonboostMaxDepth(nonboostDepth):
 
 		classifier = tree.DecisionTreeClassifier(max_depth = max_depth + 1)
 
-		depths.append(n_estimators + 1)
+		depths.append(max_depth + 1)
 		cvCurrent = cross_val_score(classifier, input_list, output_list, cv = setCV).mean()
 		cvScore.append(cvCurrent)
 
@@ -107,7 +107,8 @@ def nonboostMaxDepth(nonboostDepth):
 
 	cvAxis.set(xlabel='Max Depth', ylabel='Percent Correct', title='Nonboost Max Depth CV')
 	testAxis.set(xlabel='Max Depth', ylabel='Percent Correct', title='Nonboost Max Depth Testing')
-	axis.legend()
+	cvAxis.legend()
+	testAxis.legend()
 	figure.savefig(fileName("nonboost")+".png")
 
 	print("\t  Nonboost Progress: 100%")
@@ -152,7 +153,8 @@ def adaboostNEst(adaboostEstimators):
 
 	cvAxis.set(xlabel='n-Estimator', ylabel='Percent Correct', title='Adaboost n-Estimator CV')
 	testAxis.set(xlabel='n-Estimator', ylabel='Percent Correct', title='Adaboost n-Estimator Testing')
-	axis.legend()
+	cvAxis.legend()
+	testAxis.legend()
 	figure.savefig(fileName("adaboost_n_estimator")+".png")
 
 	print("\t  Adaboost n-Estimator Progress: 100%")
@@ -196,7 +198,8 @@ def adaboostMaxDepth(adaboostDepth):
 
 	cvAxis.set(xlabel='Max Depth', ylabel='Percent Correct', title='Adaboost Max Depth CV')
 	testAxis.set(xlabel='Max Depth', ylabel='Percent Correct', title='Adaboost Max Depth Testing')
-	axis.legend()
+	cvAxis.legend()
+	testAxis.legend()
 	figure.savefig(fileName("adaboost_max_depth")+".png")
 
 	print("\t  Adaboost Max-Depth Progress: 100%")
@@ -240,7 +243,8 @@ def knn(knnK):
 
 	cvAxis.set(xlabel='k', ylabel='Percent Correct', title='KNN CV')
 	testAxis.set(xlabel='k', ylabel='Percent Correct', title='KNN Testing')
-	axis.legend()
+	cvAxis.legend()
+	testAxis.legend()
 	figure.savefig(fileName("knn")+".png")
 
 	print("\t  KNN Progress: 100%")
@@ -289,7 +293,8 @@ def ANNVaryNeurons(varyNeurons):
 
 	cvAxis.set(xlabel='Neurons', ylabel='Percent Correct', title='ANN CV')
 	testAxis.set(xlabel='Neurons', ylabel='Percent Correct', title='ANN Testing')
-	axis.legend()
+	cvAxis.legend()
+	testAxis.legend()
 	figure.savefig(fileName("ANNVaryNeurons")+".png")
 	print("\t  ANN Vary Neuron Progress: 100%")
 
@@ -342,7 +347,8 @@ def ANNVaryLayers(varyLayers):
 
 	cvAxis.set(xlabel='Layers', ylabel='Percent Correct', title='ANN CV')
 	testAxis.set(xlabel='Layers', ylabel='Percent Correct', title='ANN Testing')
-	axis.legend()
+	cvAxis.legend()
+	testAxis.legend()
 	figure.savefig(fileName("ANNVaryLayers")+".png")
 	print("\t  ANN Vary Layers Progress: 100%")
 

@@ -91,7 +91,7 @@ def nonboostMaxDepth(nonboostDepth):
 
 		classifier = tree.DecisionTreeClassifier(max_depth = max_depth + 1)
 
-		depths.append(n_estimators + 1)
+		depths.append(max_depth + 1)
 		cvCurrent = cross_val_score(classifier, input_list, output_list, cv = setCV).mean()
 		cvScore.append(cvCurrent)
 
