@@ -3,7 +3,7 @@ import math
 import numpy
 import matplotlib.pyplot as plt
 
-from config import fileIn, fileOut, attributeNumbers, categorizingAttributeNumber, numRows, setCV
+from config2 import fileIn, fileOut, attributeNumbers, categorizingAttributeNumber, numRows, setCV
 from scipy import interp
 from sklearn import svm
 from sklearn import tree

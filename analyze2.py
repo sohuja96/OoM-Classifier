@@ -13,9 +13,9 @@ arguments = parser.parse_args()
 
 print("\nStart of Machine Learning")
 
-import algorithms
+import algorithms2
 import warnings
-from config import fileIn, fileOut, attributeNumbers, categorizingAttributeNumber, numRows
+from config2 import fileIn, fileOut, attributeNumbers, categorizingAttributeNumber, numRows
 
 warnings.simplefilter("ignore")
 
