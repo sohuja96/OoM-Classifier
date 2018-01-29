@@ -3,7 +3,7 @@ import math
 import numpy
 import matplotlib.pyplot as plt
 
-from config1 import fileIn, fileOut, attributeNumbers, categorizingAttributeNumber, numRows, setCV
+from config2 import fileIn, fileOut, attributeNumbers, categorizingAttributeNumber, numRows, setCV
 from scipy import interp
 from sklearn import svm
 from sklearn import tree
@@ -56,7 +56,10 @@ for record in csv_list:
 	except ValueError:
 		errors += 1
 		print("ValueError for " + str(record[attribute]) + "\n\t" + str(errors/inputs *100) + "% errors in your dataset")
-	output_vector = orderOfMagnitude(record)
+	try:
+		output_vector = orderOfMagnitude(record)
+	except ValueError:
+		print("Weird Class!")
 	partition_input.append(input_vector)
 	partition_output.append(output_vector)
 
@@ -101,7 +104,6 @@ def nonboostMaxDepth(nonboostDepth):
 		testScore.append(testCurrent)
 
 		file.write(str(max_depth + 1) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
-        file.close()
 
 	cvAxis.plot(depths, cvScore)
 	testAxis.plot(depths, testScore)
@@ -148,7 +150,6 @@ def adaboostNEst(adaboostEstimators):
 		testScore.append(testCurrent)
 
 		file.write(str((n_estimators + 1) * 10) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
-        file.close()
 
 	cvAxis.plot(depths, cvScore)
 	testAxis.plot(depths, testScore)
@@ -195,7 +196,6 @@ def adaboostMaxDepth(adaboostDepth):
 		testScore.append(testCurrent)
 
 		file.write(str((max_depth + 1) * 10) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
-        file.close()
 	cvAxis.plot(depths, cvScore)
 	testAxis.plot(depths, testScore)
 
@@ -240,8 +240,7 @@ def knn(knnK):
 		testCurrent = classifier.score(test_input, test_output)
 		testScore.append(testCurrent)
 
-		file.write(str((k + 1)) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
-        file.close()
+		file.write(str((k + 1) * 10) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
 	cvAxis.plot(depths, cvScore)
 	testAxis.plot(depths, testScore)
 
@@ -292,7 +291,6 @@ def ANNVaryNeurons(varyNeurons):
 		testScore.append(testCurrent)
 
 		file.write(str(neurons + 1) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
-        file.close()
 	cvAxis.plot(depths, cvScore)
 	testAxis.plot(depths, testScore)
 
@@ -347,7 +345,6 @@ def ANNVaryLayers(varyLayers):
 		testScore.append(testCurrent)
 
 		file.write(str(numLayer + 1) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
-        file.close()
 	cvAxis.plot(depths, cvScore)
 	testAxis.plot(depths, testScore)
 
@@ -432,6 +429,7 @@ def svmCompare():
 	axis.set_title('Comparison of SVM Kernels')
 	axis.set_xticks(index + barWidth / 2)
 	axis.set_xticklabels(('RBF','Sigmoid','Linear'))
+	axis.legend()
 	figure.savefig(fileName("svm kernels")+".png")
 
 '''
