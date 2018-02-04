@@ -240,7 +240,7 @@ def knn(knnK):
 		testCurrent = classifier.score(test_input, test_output)
 		testScore.append(testCurrent)
 
-		file.write(str((k + 1)) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
+		file.write(str((k + 1) * 10) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
         file.close()
 	cvAxis.plot(depths, cvScore)
 	testAxis.plot(depths, testScore)

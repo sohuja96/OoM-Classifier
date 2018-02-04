@@ -21,7 +21,7 @@ def fileName(algorithm):
 
 # Calculate order of magnitude
 def orderOfMagnitude(record):
-    floatedValue = float(record[categorizingAttributeNumber-1])
+    floatedValue = float(record[int(categorizingAttributeNumber)-1])
     try:
         return float(math.floor(math.log10(floatedValue)));  #mean
     except ValueError:
@@ -56,7 +56,10 @@ for record in csv_list:
 	except ValueError:
 		errors += 1
 		print("ValueError for " + str(record[attribute]) + "\n\t" + str(errors/inputs *100) + "% errors in your dataset")
-	output_vector = orderOfMagnitude(record)
+	try:
+		output_vector = orderOfMagnitude(record)
+	except ValueError:
+		print("Weird Class!")
 	partition_input.append(input_vector)
 	partition_output.append(output_vector)
 
@@ -192,7 +195,7 @@ def adaboostMaxDepth(adaboostDepth):
 		testCurrent = classifier.score(test_input, test_output)
 		testScore.append(testCurrent)
 
-		file.write(str((k + 1) * 10) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
+		file.write(str((max_depth + 1) * 10) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
 	cvAxis.plot(depths, cvScore)
 	testAxis.plot(depths, testScore)
 
