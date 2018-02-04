@@ -15,23 +15,28 @@ varyLayers= 50
 
 # FOR MY LOVELY GTA's! :)
 # DATASET 1
-def dataset1():
-	fileIn= "TornadoData/2016_torn.csv"
-	fileOut= "tornado_"
-	attributeNumbers= [3, 11, 20, 21]
-	categorizingAttributeNumber= 14
-	numRows= 1000
+fileIn= "TornadoData/2016_torn.csv"
+fileOut= "tornado_"
+attributeNumbers= [3, 11, 20, 21]
+categorizingAttributeNumber= 14
+numRows= 1000
 # DATASET 2
-def dataset2():
-	fileIn= "AirQData/epa_air_quality_annual_summary.csv"
-	fileOut= "AirQ_"
-	attributeNumbers= [6, 7, 14, 17, 18, 42, 43, 44, 45, 46, 47, 48]
-	categorizingAttributeNumber= 28
-	numRows = 8000 # ChAnGe to 10000
+'''
+fileIn= "AirQData/epa_air_quality_annual_summary.csv"
+fileOut= "AirQ_"
+attributeNumbers= [6, 7, 14, 17, 18, 42, 43, 44, 45, 46, 47, 48]
+categorizingAttributeNumber= 28
+numRows = 8000 # ChAnGe to 10000
 # DATASET 2 but comparable to DATASET 1 in numRows
 def dataset2PT2():
+	global fileIn
+	global fileOut
+	global attributeNumbers
+	global categorizingAttributeNumber
+	global numRows
 	fileIn= "AirQData/epa_air_quality_annual_summary.csv"
 	fileOut= "AirQ_COMPARABLE_"
 	attributeNumbers= [6, 7, 14, 17, 18, 42, 43, 44, 45, 46, 47, 48]
 	categorizingAttributeNumber= 28
 	numRows = 1000 # ChAnGe to 10000
+'''

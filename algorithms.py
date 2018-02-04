@@ -67,6 +67,50 @@ test_input = partition_input[int(0.9 * len(partition_input)):]
 test_output = partition_output[int(0.9 * len(partition_input)):]
 
 # Analyze model complexity curve for NonBoost tree classifier, max_depth
+def nonboostMaxLeafNodes(nonboostDepth):
+	global input_list
+	global output_list
+	global test_input
+	global test_output
+
+	file = open(fileName("_nonboost_max_leaf_nodes_results"), "w")
+	file.write("max_depth" + ", " + "cross_val_score" + ", " + "testing_score\n")
+	figure = plt.figure()
+	cvAxis = figure.add_subplot(111)
+	testAxis = figure.add_subplot(111)
+
+	depths = []
+	cvScore = []
+	testScore = []
+
+	print("\tBeginning model complexity analysis for NonBoost...Max Leaf")
+	for max_depth in range(nonboostDepth):
+		print("\t  Nonboost Progress: "
+		+str(int(max_depth/nonboostDepth*100))
+		+"%", end='\r')
+
+		classifier = tree.DecisionTreeClassifier(max_leaf_nodes = max_depth + 2)
+
+		depths.append(max_depth + 1)
+		cvCurrent = cross_val_score(classifier, input_list, output_list, cv = setCV).mean()
+		cvScore.append(cvCurrent)
+
+		classifier.fit(input_list, output_list)
+
+		testCurrent = classifier.score(test_input, test_output)
+		testScore.append(testCurrent)
+
+		file.write(str(max_depth + 1) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
+
+	cvAxis.plot(depths, cvScore)
+	testAxis.plot(depths, testScore)
+
+	cvAxis.set(xlabel='Max Leaves', ylabel='Percent Correct', title='Nonboost Max Leaf Node CV')
+	testAxis.set(xlabel='Max Leaves', ylabel='Percent Correct', title='Nonboost Max Leaf Node Testing')
+	figure.savefig(fileName("nonboost_leaf")+".png")
+
+	print("\t  Nonboost Progress: 100%")
+# Analyze model complexity curve for NonBoost tree classifier, max_depth
 def nonboostMaxDepth(nonboostDepth):
 	global input_list
 	global output_list
@@ -107,7 +151,6 @@ def nonboostMaxDepth(nonboostDepth):
 
 	cvAxis.set(xlabel='Max Depth', ylabel='Percent Correct', title='Nonboost Max Depth CV')
 	testAxis.set(xlabel='Max Depth', ylabel='Percent Correct', title='Nonboost Max Depth Testing')
-	axis.legend()
 	figure.savefig(fileName("nonboost")+".png")
 
 	print("\t  Nonboost Progress: 100%")
@@ -152,7 +195,6 @@ def adaboostNEst(adaboostEstimators):
 
 	cvAxis.set(xlabel='n-Estimator', ylabel='Percent Correct', title='Adaboost n-Estimator CV')
 	testAxis.set(xlabel='n-Estimator', ylabel='Percent Correct', title='Adaboost n-Estimator Testing')
-	axis.legend()
 	figure.savefig(fileName("adaboost_n_estimator")+".png")
 
 	print("\t  Adaboost n-Estimator Progress: 100%")
@@ -190,13 +232,12 @@ def adaboostMaxDepth(adaboostDepth):
 		testCurrent = classifier.score(test_input, test_output)
 		testScore.append(testCurrent)
 
-		file.write(str((k + 1) * 10) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
+		file.write(str((max_depth + 1) * 10) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
 	cvAxis.plot(depths, cvScore)
 	testAxis.plot(depths, testScore)
 
 	cvAxis.set(xlabel='Max Depth', ylabel='Percent Correct', title='Adaboost Max Depth CV')
 	testAxis.set(xlabel='Max Depth', ylabel='Percent Correct', title='Adaboost Max Depth Testing')
-	axis.legend()
 	figure.savefig(fileName("adaboost_max_depth")+".png")
 
 	print("\t  Adaboost Max-Depth Progress: 100%")
@@ -240,10 +281,54 @@ def knn(knnK):
 
 	cvAxis.set(xlabel='k', ylabel='Percent Correct', title='KNN CV')
 	testAxis.set(xlabel='k', ylabel='Percent Correct', title='KNN Testing')
-	axis.legend()
 	figure.savefig(fileName("knn")+".png")
 
 	print("\t  KNN Progress: 100%")
+
+# Analyze model complexity curve for KNN classifier
+def knnDistance(knnK):
+	global input_list
+	global output_list
+	global test_input
+	global test_output
+
+	file = open(fileName("_knn_distance_results"), "w")
+	file.write("k" + ", " + "cross_val_score" + ", " + "testing_score\n")
+	figure = plt.figure()
+	cvAxis = figure.add_subplot(111)
+	testAxis = figure.add_subplot(111)
+
+
+	depths = []
+	cvScore = []
+	testScore = []
+
+	print("\tBeginning model complexity analysis for KNN...Distance")
+	for k in range(knnK):
+		print("\t  KNN Progress: " +str(int(k/knnK*100)) + "%", end="\r")
+
+		classifier = KNeighborsClassifier(n_neighbors = k + 1,
+                weights='distance')
+
+		depths.append(k + 1)
+		cvCurrent = cross_val_score(classifier, input_list, output_list, cv = setCV).mean()
+		cvScore.append(cvCurrent)
+
+		classifier.fit(input_list, output_list)
+
+		testCurrent = classifier.score(test_input, test_output)
+		testScore.append(testCurrent)
+
+		file.write(str((k + 1) * 10) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
+	cvAxis.plot(depths, cvScore)
+	testAxis.plot(depths, testScore)
+
+	cvAxis.set(xlabel='k', ylabel='Percent Correct', title='KNN CV')
+	testAxis.set(xlabel='k', ylabel='Percent Correct', title='KNN Testing')
+	figure.savefig(fileName("knn_distance")+".png")
+
+	print("\t  KNN Progress: 100%")
+
 
 # Neural network ideal number of neurons in a layer
 def ANNVaryNeurons(varyNeurons):
@@ -289,7 +374,6 @@ def ANNVaryNeurons(varyNeurons):
 
 	cvAxis.set(xlabel='Neurons', ylabel='Percent Correct', title='ANN CV')
 	testAxis.set(xlabel='Neurons', ylabel='Percent Correct', title='ANN Testing')
-	axis.legend()
 	figure.savefig(fileName("ANNVaryNeurons")+".png")
 	print("\t  ANN Vary Neuron Progress: 100%")
 
@@ -342,7 +426,6 @@ def ANNVaryLayers(varyLayers):
 
 	cvAxis.set(xlabel='Layers', ylabel='Percent Correct', title='ANN CV')
 	testAxis.set(xlabel='Layers', ylabel='Percent Correct', title='ANN Testing')
-	axis.legend()
 	figure.savefig(fileName("ANNVaryLayers")+".png")
 	print("\t  ANN Vary Layers Progress: 100%")
 
@@ -423,72 +506,45 @@ def svmCompare():
 	axis.legend()
 	figure.savefig(fileName("svm kernels")+".png")
 
-'''
-# Gather data for learning curves
-scaler = StandardScaler()
+def svmMaxIterations(knnK):
+	global input_list
+	global output_list
+	global test_input
+	global test_output
 
-layers = []
-for i in range(14):
-    layers.append(18)
+	file = open(fileName("_svm_iter_results"), "w")
+	file.write("k" + ", " + "cross_val_score" + ", " + "testing_score\n")
+	figure = plt.figure()
+	cvAxis = figure.add_subplot(111)
+	testAxis = figure.add_subplot(111)
 
-file = open(fileName("_learning_curve_data.csv"), "w")
-print("Beginning learning curve analysis...")
-file.write("input_size" + ", " + "cv_dt" + ", " + "cv_ab" + ", " + "cv_kn" + ", " + "cv_n" + ", " + "cv_svc" + ", " + "dt" + ", " + "ab" + ", " + "kn" + ", " + "n" + ", " + "svc\n")
-for input_size in range(1, int(len(input_list) / 100)):
-    input_partition = input_list[:input_size * 100]
-    input_nn_partition = input_list[:input_size * 100]
-    scaler.fit(input_nn_partition)
-    input_nn_partition = scaler.transform(input_nn_partition)
-    output_partition = output_list[:input_size * 100]
-    output = str(input_size * 100) + ", "
-    DT = tree.DecisionTreeClassifier(max_depth = 6)
-    AB = AdaBoostClassifier(base_estimator=tree.DecisionTreeClassifier(max_depth=8), n_estimators=50)
-    KN = KNeighborsClassifier(n_neighbors = 20)
-    N = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(layers), random_state=1)
-    SV = svm.SVC(kernel="sigmoid")
-    output += str(cross_val_score(DT, input_partition, output_partition, cv = setCV).mean()) + ", "
-    output += str(cross_val_score(AB, input_partition, output_partition, cv = setCV).mean()) + ", "
-    output += str(cross_val_score(KN, input_partition, output_partition, cv = setCV).mean()) + ", "
-    output += str(cross_val_score(N, input_nn_partition, output_partition, cv = setCV).mean()) + ", "
-    output += str(cross_val_score(SV, input_partition, output_partition, cv = setCV).mean()) + ", "
-    DT.fit(input_partition, output_partition)
-    AB.fit(input_partition, output_partition)
-    KN.fit(input_partition, output_partition)
-    N.fit(input_nn_partition, output_partition)
-    SV.fit(input_partition, output_partition)
-    output += str(DT.score(input_partition, output_partition)) + ", "
-    output += str(AB.score(input_partition, output_partition)) + ", "
-    output += str(KN.score(input_partition, output_partition)) + ", "
-    output += str(N.score(input_nn_partition, output_partition)) + ", "
-    output += str(SV.score(input_partition, output_partition)) + "\n"
-    print(output)
-    file.write(output)
 
-# Generating ROC curves and confusion matrices
-layers = []
-for i in range(14):
-    layers.append(18)
+	depths = []
+	cvScore = []
+	testScore = []
 
-file = open(fileName("roc_curve_data_svc"), "w")
-mean_tpr = 0.0
-mean_fpr = numpy.linspace(0, 1, 100)
-lw = 2
-color = "red"
-fpr, tpr, thresholds = roc_curve(test_output, probs[:, 1])
-file.write("tpr" + ", " + "fpr\n")
-for i in range(len(fpr)):
-    file.write(str(tpr[i]) + ", " + str(fpr[i]) + "\n")
-mean_tpr += interp(mean_fpr, fpr, tpr)
-mean_tpr[0] = 0.0
-roc_auc = auc(fpr, tpr)
-plt.plot(fpr, tpr, lw=lw, color=color,
-             label='ROC fold (area = %0.2f)' % (roc_auc))
-plt.xlim([-0.05, 1.05])
-plt.ylim([-0.05, 1.05])
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('TPR vs. FPR (Coding Survey)')
-plt.legend(loc="lower right")
-plt.show()
-'''
+	print("\tBeginning model complexity analysis for SVM...Iterations")
+	for k in range(knnK):
+		k = k * 20
+		print("\t  SVM Progress: " +str(int(k/knnK*100)) + "%", end="\r")
 
+		classifier = svm.LinearSVC(max_iter = k)
+
+		depths.append(k + 1)
+		cvCurrent = cross_val_score(classifier, input_list, output_list, cv = setCV).mean()
+		cvScore.append(cvCurrent)
+
+		classifier.fit(input_list, output_list)
+
+		testCurrent = classifier.score(test_input, test_output)
+		testScore.append(testCurrent)
+
+		file.write(str(k + 1) + "," + str(cvCurrent) + ", " + str(testCurrent) + "\n")
+	cvAxis.plot(depths, cvScore)
+	testAxis.plot(depths, testScore)
+
+	cvAxis.set(xlabel='Max Iterations', ylabel='Percent Correct', title='SVM Iteration CV')
+	testAxis.set(xlabel='Max Iterations', ylabel='Percent Correct', title='SVM Iteration Testing')
+	figure.savefig(fileName("svm_iter")+".png")
+
+	print("\t  SVM Progress: 100%")
