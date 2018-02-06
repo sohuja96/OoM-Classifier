@@ -526,7 +526,7 @@ def svmMaxIterations(knnK):
 	print("\tBeginning model complexity analysis for SVM...Iterations")
 	for k in range(knnK):
 		k = k * 20
-		print("\t  SVM Progress: " +str(int(k/knnK*100)) + "%", end="\r")
+		print("\t  SVM Progress: " +str(int(k/knnK*5)) + "%", end="\r")
 
 		classifier = svm.LinearSVC(max_iter = k)
 
